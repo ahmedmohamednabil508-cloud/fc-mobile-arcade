@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" id="htmlRoot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FC Mobile Arcade - Global Edition</title>
+    <style>
+        :root {
+            --primary: #00ff87;
+            --primary-dark: #00b359;
+            --bg-dark: #0f172a;
+            --panel-bg: rgba(30, 41, 59, 0.85);
+            --gold: #f59e0b;
+        }
+
+        body {
+            margin: 0;
+            background: radial-gradient(circle at center, #1e293b, #0f172a);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        #menu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            padding: 35px 45px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 255, 135, 0.15);
+            text-align: center;
+            min-width: 320px;
+            max-width: 450px;
+            width: 90%;
+        }
+
+        .logo-title {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #fff 30%, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-top: -10px;
+            margin-bottom: 5px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #022c22;
+            border: none;
+            padding: 14px 24px;
+            font-size: 17px;
+            font-weight: 800;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(0, 255, 135, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(0, 255, 135, 0.5);
+        }
+
+        .btn-card {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #451a03;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-card:hover {
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.5);
+        }
+
+        .lang-box {
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .lang-label {
+            font-size: 12px;
+            color: #94a3b8;
+            display: block;
+            margin-bottom: 6px;
+            text-align: inherit;
+        }
+
+        .lang-select {
+            background: #0f172a;
+            color: #e2e8f0;
+            border: 1px solid #334155;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 15px;
+            cursor: pointer;
+            width: 100%;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        .lang-select:focus {
+            border-color: var(--primary);
+        }
+
+        #cardModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .fut-card {
+            width: 200px;
+            height: 300px;
+            background: linear-gradient(135deg, #fef08a, #f59e0b, #78350f);
+            border-radius: 16px;
+            border: 3px solid #fef08a;
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            color: #451a03;
+            font-weight: bold;
+            position: relative;
+        }
+
+        .card-ovr { font-size: 36px; font-weight: 900; line-height: 1; }
+        .card-pos { font-size: 16px; text-transform: uppercase; }
+        .card-name { font-size: 20px; text-transform: uppercase; margin: 20px 0 10px 0; }
+        .card-stats { font-size: 13px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; text-align: center; }
+
+        .score-board {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            display: none;
+            background: var(--panel-bg);
+            padding: 10px 25px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        canvas {
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            background: #1e3a29;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+            border-radius: 12px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="menu">
+        <h1 class="logo-title" id="txtTitle">FC Mobile Arcade</h1>
+        <div class="subtitle" id="txtSub">ULTIMATE FOOTBALL CHALLENGE</div>
+
+        <button class="btn" onclick="startGame(1)" id="btn1v1">1 vs 1 Mode</button>
+        <button class="btn" onclick="startGame(2)" id="btn2v2">2 vs 2 Mode</button>
+        <button class="btn btn-card" onclick="openCardPreview()" id="btnCard">Preview Squad Card</button>
+        
+        <div class="lang-box">
+            <label class="lang-label" id="txtLangLabel">🌍 Select Language / اختر اللغة:</label>
+            <select id="languageSelector" class="lang-select" onchange="changeLanguage(this.value)">
+                <option value="en">🇺🇸 English</option>
+                <option value="ar">🇪🇬 العربية (Arabic)</option>
+                <option value="es">🇪🇸 Español (Spanish)</option>
+                <option value="pt">🇧🇷 Português (Portuguese)</option>
+                <option value="fr">🇫🇷 Français (French)</option>
+                <option value="de">🇩🇪 Deutsch (German)</option>
+                <option value="it">🇮🇹 Italiano (Italian)</option>
+                <option value="tr">🇹🇷 Türkçe (Turkish)</option>
+                <option value="ja">🇯🇵 日本語 (Japanese)</option>
+                <option value="ko">🇰🇷 한국어 (Korean)</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="cardModal" onclick="closeCardPreview()">
+        <div class="fut-card" onclick="event.stopPropagation()">
+            <div class="card-ovr">99</div>
+            <div class="card-pos">ST</div>
+            <div class="card-name">STRIKER</div>
+            <div class="card-stats">
+                <div>PAC: 99</div>
+                <div>SHO: 98</div>
+                <div>PAS: 92</div>
+                <div>DRI: 97</div>
+            </div>
+            <button style="margin-top: auto; padding: 6px 12px; background: #451a03; color: #fff; border: none; border-radius: 6px; cursor: pointer;" onclick="closeCardPreview()" id="btnCloseCard">Close</button>
+        </div>
+    </div>
+
+    <div class="score-board" id="scoreBoard">
+        <span id="labelRed" style="color: #ff4757;">Red: <span id="score1">0</span></span> 
+        &nbsp;&nbsp;|&nbsp;&nbsp; 
+        <span id="labelBlue" style="color: #2ed573;">Blue: <span id="score2">0</span></span>
+    </div>
+
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+
+    <script>
+        const langData = {
+            en: { title: "FC Mobile Arcade", sub: "ULTIMATE FOOTBALL CHALLENGE", mode1: "1 vs 1 Mode", mode2: "2 vs 2 Mode", cardBtn: "Preview Squad Card", langLabel: "Select Language:", red: "Red", blue: "Blue", close: "Close", dir: "ltr" },
+            ar: { title: "إف سي موبايل آركيد", sub: "تحدي كرة القدم الأسطوري", mode1: "نمط 1 ضد 1", mode2: "نمط 2 ضد 2", cardBtn: "معاينة كارت الفريق", langLabel: "اختر اللغة:", red: "الأحمر", blue: "الأزرق", close: "إغلاق", dir: "rtl" },
+            es: { title: "FC Mobile Arcade", sub: "DESAFÍO DE FÚTBOL DEFINITIVO", mode1: "Modo 1 vs 1", mode2: "Modo 2 vs 2", cardBtn: "Ver Carta de Plantilla", langLabel: "Elegir Idioma:", red: "Rojo", blue: "Azul", close: "Cerrar", dir: "ltr" },
+            pt: { title: "FC Mobile Arcade", sub: "DESAFIO DE FUTEBOL DEFINITIVO", mode1: "Modo 1 vs 1", mode2: "Modo 2 vs 2", cardBtn: "Ver Carta do Elenco", langLabel: "Escolher Idioma:", red: "Vermelho", blue: "Azul", close: "Fechar", dir: "ltr" },
+            fr: { title: "FC Mobile Arcade", sub: "DÉFI DE FOOTBALL ULTIME", mode1: "Mode 1 contre 1", mode2: "Mode 2 contre 2", cardBtn: "Aperçu Carte Équipe", langLabel: "Choisir la langue:", red: "Rouge", blue: "Bleu", close: "Fermer", dir: "ltr" },
+            de: { title: "FC Mobile Arcade", sub: "ULTIMATIVE FUSSBALL-HERAUSFORDERUNG", mode1: "1 gegen 1 Modus", mode2: "2 gegen 2 Modus", cardBtn: "Kader-Karte Vorschau", langLabel: "Sprache wählen:", red: "Rot", blue: "Blau", close: "Schließen", dir: "ltr" },
+            it: { title: "FC Mobile Arcade", sub: "SFIDA DI CALCIO DEFINITIVA", mode1: "Modalità 1 vs 1", mode2: "Modalità 2 vs 2", cardBtn: "Anteprima Carta Rosa", langLabel: "Scegli Lingua:", red: "Rosso", blue: "Blu", close: "Chiudi", dir: "ltr" },
+            tr: { title: "FC Mobile Arcade", sub: "NİHAİ FUTBOL MÜCADELESİ", mode1: "1'e 1 Modu", mode2: "2'ye 2 Modu", cardBtn: "Kadro Kartını İncele", langLabel: "Dil Seçin:", red: "Kırmızı", blue: "Mavi", close: "Kapat", dir: "ltr" },
+            ja: { title: "FC Mobile Arcade", sub: "究極のサッカーチャレンジ", mode1: "1 vs 1 モード", mode2: "2 vs 2 モード", cardBtn: "カードプレビュー", langLabel: "言語を選択:", red: "レッド", blue: "ブルー", close: "閉じる", dir: "ltr" },
+            ko: { title: "FC Mobile Arcade", sub: "궁극의 축구 챌린지", mode1: "1 vs 1 모드", mode2: "2 vs 2 모ード", cardBtn: "스쿼드 카드 미리보기", langLabel: "언어 선택:", red: "레드", blue: "블루", close: "닫기", dir: "ltr" }
+        };
+
+        let currentLang = 'en';
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            const t = langData[lang];
+            
+            document.getElementById("htmlRoot").setAttribute("dir", t.dir);
+            document.getElementById("htmlRoot").setAttribute("lang", lang);
+
+            document.getElementById("txtTitle").innerText = t.title;
+            document.getElementById("txtSub").innerText = t.sub;
+            document.getElementById("btn1v1").innerText = t.mode1;
+            document.getElementById("btn2v2").innerText = t.mode2;
+            document.getElementById("btnCard").innerText = t.cardBtn;
+            document.getElementById("txtLangLabel").innerText = t.langLabel;
+            document.getElementById("btnCloseCard").innerText = t.close;
+            
+            updateScoreLabels();
+        }
+
+        function updateScoreLabels() {
+            const t = langData[currentLang];
+            document.getElementById("labelRed").innerHTML = `${t.red}: <span id="score1">${score1}</span>`;
+            document.getElementById("labelBlue").innerHTML = `${t.blue}: <span id="score2">${score2}</span>`;
+        }
+
+        function openCardPreview() { document.getElementById("cardModal").style.display = "flex"; }
+        function closeCardPreview() { document.getElementById("cardModal").style.display = "none"; }
+
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let currentMode = 1;
+        let score1 = 0, score2 = 0;
+
+        let red1 = { x: 150, y: 200, radius: 14, color: "#ff4757", speed: 4 };
+        let red2 = { x: 100, y: 280, radius: 14, color: "#ff6b81", speed: 4 };
+        let blue1 = { x: 650, y: 200, radius: 14, color: "#2ed573", speed: 4 };
+        let blue2 = { x: 700, y: 280, radius: 14, color: "#7bed9f", speed: 4 };
+        let ball = { x: 400, y: 200, radius: 10, dx: 0, dy: 0, color: "#fff" };
+
+        let keys = {};
+        window.addEventListener("keydown", (e) => keys[e.key] = true);
+        window.addEventListener("keyup", (e) => keys[e.key] = false);
+
+        function startGame(mode) {
+            currentMode = mode;
+            document.getElementById("menu").style.display = "none";
+            document.getElementById("scoreBoard").style.display = "block";
+            canvas.style.display = "block";
+            resetBall();
+            loop();
+        }
+
+        function update() {
+            if (keys['w'] && red1.y > red1.radius) red1.y -= red1.speed;
+            if (keys['s'] && red1.y < canvas.height - red1.radius) red1.y += red1.speed;
+            if (keys['a'] && red1.x > red1.radius) red1.x -= red1.speed;
+            if (keys['d'] && red1.x < canvas.width / 2) red1.x += red1.speed;
+
+            if (currentMode === 2) {
+                if (keys['ArrowUp'] && red2.y > red2.radius) red2.y -= red2.speed;
+                if (keys['ArrowDown'] && red2.y < canvas.height - red2.radius) red2.y += red2.speed;
+                if (keys['ArrowLeft'] && red2.x > red2.radius) red2.x -= red2.speed;
+                if (keys['ArrowRight'] && red2.x < canvas.width / 2) red2.x += red2.speed;
+            }
+
+            ball.x += ball.dx; ball.y += ball.dy;
+            ball.dx *= 0.98; ball.dy *= 0.98;
+
+            checkCollision(red1); checkCollision(blue1);
+            if (currentMode === 2) { checkCollision(red2); checkCollision(blue2); }
+
+            if (ball.y - ball.radius < 0 || ball.y + ball.radius > canvas.height) ball.dy *= -1;
+
+            if (ball.x < 0) { score2++; updateScoreLabels(); resetBall(); }
+            else if (ball.x > canvas.width) { score1++; updateScoreLabels(); resetBall(); }
+        }
+
+        function checkCollision(p) {
+            let distX = ball.x - p.x, distY = ball.y - p.y;
+            let distance = Math.sqrt(distX * distX + distY * distY);
+            if (distance < ball.radius + p.radius) {
+                ball.dx = distX * 0.35; ball.dy = distY * 0.35;
+            }
+        }
+
+        function resetBall() {
+            ball.x = canvas.width / 2; ball.y = canvas.height / 2;
+            ball.dx = 0; ball.dy = 0;
+            red1.x = 150; red1.y = 200;
+            blue1.x = 650; blue1.y = 200;
+            if (currentMode === 2) { red2.x = 100; red2.y = 280; blue2.x = 700; blue2.y = 280; }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = "rgba(255,255,255,0.2)"; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(canvas.width / 2, 0); ctx.lineTo(canvas.width / 2, canvas.height); ctx.stroke();
+
+            drawPlayer(red1); drawPlayer(blue1);
+            if (currentMode === 2) { drawPlayer(red2); drawPlayer(blue2); }
+
+            ctx.fillStyle = ball.color; ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2); ctx.fill();
+        }
+
+        function drawPlayer(p) {
+            ctx.fillStyle = p.color; ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
+        }
+
+        function loop() { update(); draw(); requestAnimationFrame(loop); }
+    </script>
+</body>
+</html>
